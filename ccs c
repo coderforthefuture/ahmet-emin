@@ -1,0 +1,35 @@
+#include <16F877A.h>
+#fuses XT,NOWDT,NOBROWNOUT,NOLVP
+#use delay(clock=4000000)
+
+#use fast_io(c)
+
+unsigned long int duty=100;
+
+#define HIZLANDIR PIN_D0
+#define YAVASLAT  PIN_D1
+
+void main(){
+delay_ms(1000);
+   setup_psp(PSP_DISABLED);
+   setup_spi(SPI_SS_DISABLED);  
+   setup_timer_2(T2_DIV_BY_16,127,1);
+   set_tris_c(0x00);
+   setup_ccp1(CCP_PWM);
+   
+   while(1){
+      set_pwm1_duty(duty);
+      delay_ms(100);
+     while(input(HIZLANDIR)){
+        duty = duty+20;
+      set_pwm1_duty(duty);
+      delay_ms(100);
+       break;}
+   
+      while(input(YAVASLAT)){
+         duty = duty -20;
+         set_pwm1_duty(duty);
+        delay_ms(100);
+        break;}
+        }
+}
