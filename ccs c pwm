@@ -1,0 +1,32 @@
+#include <16F877A.h>
+#fuses XT,NOWDT,NOBROWNOUT,NOLVP
+#use delay(clock=4000000)
+
+#use fast_io(c)
+#use fast_io(b)
+
+int8 duty=4;
+int i=124;
+#define HIZLANDIRd PIN_B0
+#define YAVASLATd  PIN_B1
+#define HIZLANDIRf PIN_B2
+#define YAVASLATf  PIN_B3
+
+
+void main(){
+   setup_psp(PSP_DISABLED);
+   setup_spi(SPI_SS_DISABLED);
+   setup_adc_ports(NO_ANALOGS);
+   setup_adc(ADC_OFF);
+   
+   set_tris_c(0x00);
+   set_tris_b(0x0F);
+   
+   setup_ccp1(CCP_PWM);
+   
+   setup_timer_2(T2_DIV_BY_4,124,1);
+   
+   set_pwm1_duty(duty);
+   
+   while(1){
+   set_pwm1_duty(duty);}
