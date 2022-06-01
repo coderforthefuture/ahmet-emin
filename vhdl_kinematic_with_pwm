@@ -1,0 +1,190 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use IEEE.NUMERIC_STD.ALL;
+library UNISIM;
+use UNISIM.VComponents.all;
+
+entity kinematic_pwm is
+    generic(
+        c_clkfreq : integer :=100000000;
+        c_pwmfreq : integer:=1000);
+    port (
+        clk : in std_logic;
+        buton : in std_logic_vector (4 downto 0);
+        motor: out std_logic_vector(3 downto 0));
+end kinematic_pwm;
+
+architecture Behavioral of kinematic_pwm is
+component pwm is
+generic(
+        c_clkfreq : integer := 100000000;
+        c_pwmfreq : integer := 1000);
+    port (
+        clk : in std_logic;
+        duty_cycle_i : in std_logic_vector (6 downto 0);
+        pwm_o : out std_logic);
+end component;
+
+--constant c_counterlim : integer := 128;
+--constant c_timerlim : integer := c_clkfreq/c_pwmfreq;--timer 1000 hz
+
+signal duty_cycle_m1 : std_logic_vector (6 downto 0) := "0000000" ;
+signal duty_cycle_m2 : std_logic_vector (6 downto 0) := "0000000" ;
+signal duty_cycle_m3 : std_logic_vector (6 downto 0) := "0000000" ;
+signal duty_cycle_m4 : std_logic_vector (6 downto 0) := "0000000" ;
+signal pwm_m1 : std_logic := '1';
+signal pwm_m2 : std_logic := '1';
+signal pwm_m3 : std_logic := '1';
+signal pwm_m4 : std_logic := '1';
+signal counter : integer range 0 to 3:= 0;
+--signal timer0,timer1,timer2,timer3,timer4 : integer range 0 to c_timerlim :=0;
+signal cycle0,cycle1,cycle2,cycle3,cycle4 : integer range 0 to 300000000 :=0;
+
+begin
+
+i_pwm_m1 : pwm
+generic map(
+c_clkfreq => c_clkfreq,
+c_pwmfreq => c_pwmfreq)
+port map (
+clk => clk,
+duty_cycle_i => duty_cycle_m1,
+pwm_o => pwm_m1);
+
+i_pwm_m2 : pwm
+generic map(
+c_clkfreq => c_clkfreq,
+c_pwmfreq => c_pwmfreq)
+port map (
+clk => clk,
+duty_cycle_i => duty_cycle_m2,
+pwm_o => pwm_m2);
+
+i_pwm_m3 : pwm
+generic map(
+c_clkfreq => c_clkfreq,
+c_pwmfreq => c_pwmfreq)
+port map (
+clk => clk,
+duty_cycle_i => duty_cycle_m3,
+pwm_o => pwm_m3);
+
+i_pwm_m4 : pwm
+generic map(
+c_clkfreq => c_clkfreq,
+c_pwmfreq => c_pwmfreq)
+port map (
+clk => clk,
+duty_cycle_i => duty_cycle_m4,
+pwm_o => pwm_m4);
+
+
+--duty_cycle_ld16 <= CONV_STD_LOGIC_VECTOR((  50 - CONV_INTEGER(duty_cycle_ld17)),7);
+
+P_MAIN : process (clk) begin
+if (rising_edge(clk)) then   
+        if (buton(0) = '1') then
+            if cycle0 = 25000000 then                 
+                    duty_cycle_m1 <= duty_cycle_m1 -2;
+                    duty_cycle_m2 <= duty_cycle_m2 +5; 
+                    duty_cycle_m3 <= duty_cycle_m3 -2; 
+                    duty_cycle_m4 <= duty_cycle_m4 +5;
+                    cycle0 <=0;
+            else
+                cycle0 <= cycle0 +1;
+            end if;
+        end if;        
+        if (buton(1) = '1') then
+            if cycle1 = 25000000 then                    
+                        duty_cycle_m1 <= duty_cycle_m1 -2;
+                        duty_cycle_m2 <= duty_cycle_m2 -2;
+                        duty_cycle_m3 <= duty_cycle_m3 +5;
+                        duty_cycle_m4 <= duty_cycle_m4 +5;
+                        cycle1 <=0;
+            else 
+                cycle1 <= cycle1 +1;
+            end if;
+        end if;
+             
+        if (buton(2) = '1') then
+            if cycle2 = 25000000 then
+                    duty_cycle_m1 <= duty_cycle_m1 +5;
+                    duty_cycle_m2 <= duty_cycle_m2 -2; 
+                    duty_cycle_m3 <= duty_cycle_m3 +5; 
+                    duty_cycle_m4 <= duty_cycle_m4 -2;
+                    cycle2<=0;
+            else 
+                cycle2 <= cycle2 +1;
+             end if;
+        end if;
+              
+        if (buton(3) = '1') then
+            if cycle3 =25000000 then
+                            duty_cycle_m1 <= duty_cycle_m1 +5;
+                            duty_cycle_m2 <= duty_cycle_m2 +5;
+                            duty_cycle_m3 <= duty_cycle_m3 -2;
+                            duty_cycle_m4 <= duty_cycle_m4 -2;
+                            cycle3 <= 0;
+            else
+                cycle3 <= cycle3 +1;
+            end if;        
+        end if;
+               
+    if (buton(4) = '1') then
+      if cycle4 = 300000000 then
+            if (counter = 0) then
+                duty_cycle_m1 <= "0001111";
+                duty_cycle_m2 <= "0001111";
+                duty_cycle_m3 <= "0001111";                     
+                duty_cycle_m4 <= "0001111";
+                cycle4 <=0;
+                counter <= counter +1;
+          elsif (counter = 1) then
+              duty_cycle_m1 <= "1111000";
+              duty_cycle_m2 <= "1111000";
+              duty_cycle_m3 <= "1111000";                     
+              duty_cycle_m4 <= "1111000";
+              cycle4 <=0;
+              counter <= counter +1;
+              
+          elsif (counter = 2) then
+              duty_cycle_m1 <= "0001111";
+              duty_cycle_m2 <= "0001111";
+              duty_cycle_m3 <= "0001111";                     
+              duty_cycle_m4 <= "0001111";
+              cycle4 <=0;
+              counter <= counter +1;
+          
+          elsif (counter = 3) then
+              duty_cycle_m1 <= "0000001";
+              duty_cycle_m2 <= "0000001";
+              duty_cycle_m3 <= "0000001";                     
+              duty_cycle_m4 <= "0000001";
+              cycle4 <=0;
+              counter <= 0;
+            end if;
+       else
+            cycle4 <= cycle4 +1;                           
+      end if;      
+      
+  end if;
+           
+end if;
+end process;
+
+P_REG_OUT : process (clk)
+begin
+if (rising_edge(clk)) then
+    motor(0) <= pwm_m1;
+    
+    motor(1) <= pwm_m2;
+    
+    motor(2) <= pwm_m3;
+    
+    motor(3) <= pwm_m4;
+end if;
+end process;
+
+end Behavioral;
