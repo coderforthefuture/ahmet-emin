@@ -12,7 +12,7 @@ entity kinematic_pwm is
         c_pwmfreq : integer:=1000);
     port (
         clk : in std_logic;
-        buton : in std_logic_vector (4 downto 0);
+        buton : in std_logic_vector (5 downto 0);
         motor: out std_logic_vector(3 downto 0));
 end kinematic_pwm;
 
@@ -30,17 +30,17 @@ end component;
 --constant c_counterlim : integer := 128;
 --constant c_timerlim : integer := c_clkfreq/c_pwmfreq;--timer 1000 hz
 
-signal duty_cycle_m1 : std_logic_vector (6 downto 0) := "0000000" ;
-signal duty_cycle_m2 : std_logic_vector (6 downto 0) := "0000000" ;
-signal duty_cycle_m3 : std_logic_vector (6 downto 0) := "0000000" ;
-signal duty_cycle_m4 : std_logic_vector (6 downto 0) := "0000000" ;
+signal duty_cycle_m1 : std_logic_vector (6 downto 0) := "0000011" ;
+signal duty_cycle_m2 : std_logic_vector (6 downto 0) := "0001100" ;
+signal duty_cycle_m3 : std_logic_vector (6 downto 0) := "0110000" ;
+signal duty_cycle_m4 : std_logic_vector (6 downto 0) := "1000000" ;
 signal pwm_m1 : std_logic := '1';
 signal pwm_m2 : std_logic := '1';
 signal pwm_m3 : std_logic := '1';
 signal pwm_m4 : std_logic := '1';
 signal counter : integer range 0 to 3:= 0;
 --signal timer0,timer1,timer2,timer3,timer4 : integer range 0 to c_timerlim :=0;
-signal cycle0,cycle1,cycle2,cycle3,cycle4 : integer range 0 to 300000000 :=0;
+signal cycle0,cycle1,cycle2,cycle3,cycle4,cycle5 : integer range 0 to 25000000 :=0;
 
 begin
 
@@ -86,34 +86,38 @@ pwm_o => pwm_m4);
 P_MAIN : process (clk) begin
 if (rising_edge(clk)) then   
         if (buton(0) = '1') then
-            if cycle0 = 25000000 then                 
-                    duty_cycle_m1 <= duty_cycle_m1 -2;
-                    duty_cycle_m2 <= duty_cycle_m2 +5; 
-                    duty_cycle_m3 <= duty_cycle_m3 -2; 
-                    duty_cycle_m4 <= duty_cycle_m4 +5;
+           if cycle0 = 25000000 then          
                     cycle0 <=0;
+               if(duty_cycle_m1 >1) then duty_cycle_m1 <= duty_cycle_m1 -2; else duty_cycle_m1 <="0000000"; end if;
+               if(duty_cycle_m2 <99) then duty_cycle_m2 <= duty_cycle_m2 +2; else duty_cycle_m2 <="1100100"; end if;
+               if(duty_cycle_m3 >1) then duty_cycle_m3 <= duty_cycle_m3 -2; else duty_cycle_m3 <="0000000"; end if;
+               if(duty_cycle_m4 <99) then duty_cycle_m4 <= duty_cycle_m4 +2; else duty_cycle_m4 <="1100100"; end if;                                          
             else
                 cycle0 <= cycle0 +1;
             end if;
-        end if;        
+        end if;
+        
+                
         if (buton(1) = '1') then
-            if cycle1 = 25000000 then                    
-                        duty_cycle_m1 <= duty_cycle_m1 -2;
-                        duty_cycle_m2 <= duty_cycle_m2 -2;
-                        duty_cycle_m3 <= duty_cycle_m3 +5;
-                        duty_cycle_m4 <= duty_cycle_m4 +5;
-                        cycle1 <=0;
+            if cycle1 = 25000000 then              
+                  if(duty_cycle_m1 >1) then duty_cycle_m1 <= duty_cycle_m1 -2; else duty_cycle_m1 <="0000000"; end if;
+                  if(duty_cycle_m2 >1) then duty_cycle_m2 <= duty_cycle_m2 -2; else duty_cycle_m2 <="0000000"; end if;
+                  if(duty_cycle_m3 <99) then duty_cycle_m3 <= duty_cycle_m3 +2; else duty_cycle_m3 <="1100100"; end if; 
+                  if(duty_cycle_m4 <99) then duty_cycle_m4 <= duty_cycle_m4 +2; else duty_cycle_m4 <="1100100"; end if;   
+                  cycle1 <=0;
             else 
                 cycle1 <= cycle1 +1;
             end if;
         end if;
+         
              
         if (buton(2) = '1') then
-            if cycle2 = 25000000 then
-                    duty_cycle_m1 <= duty_cycle_m1 +5;
-                    duty_cycle_m2 <= duty_cycle_m2 -2; 
-                    duty_cycle_m3 <= duty_cycle_m3 +5; 
-                    duty_cycle_m4 <= duty_cycle_m4 -2;
+            if cycle2 = 25000000 then             
+                 
+                 if(duty_cycle_m1 <99) then duty_cycle_m1 <= duty_cycle_m1 +2; else duty_cycle_m1 <="1100100"; end if;
+                 if(duty_cycle_m2 >1) then duty_cycle_m2 <= duty_cycle_m2 -2; else duty_cycle_m2 <="0000000"; end if;
+                 if(duty_cycle_m3 <99) then duty_cycle_m3 <= duty_cycle_m3 +2; else duty_cycle_m3 <="1100100"; end if;  
+                 if(duty_cycle_m4 >1) then duty_cycle_m4 <= duty_cycle_m4 -2; else duty_cycle_m4 <="0000000"; end if;
                     cycle2<=0;
             else 
                 cycle2 <= cycle2 +1;
@@ -121,58 +125,42 @@ if (rising_edge(clk)) then
         end if;
               
         if (buton(3) = '1') then
-            if cycle3 =25000000 then
-                            duty_cycle_m1 <= duty_cycle_m1 +5;
-                            duty_cycle_m2 <= duty_cycle_m2 +5;
-                            duty_cycle_m3 <= duty_cycle_m3 -2;
-                            duty_cycle_m4 <= duty_cycle_m4 -2;
+            if cycle3 =25000000 then               
+                    if(duty_cycle_m1 <99) then duty_cycle_m1 <= duty_cycle_m1 +2; else duty_cycle_m1 <="1100100"; end if;
+                    if(duty_cycle_m2 <99) then duty_cycle_m2 <= duty_cycle_m2 +2; else duty_cycle_m2 <="1100100"; end if;
+                    if(duty_cycle_m3 >1) then duty_cycle_m3 <= duty_cycle_m3 -2; else duty_cycle_m3 <="0000000"; end if;
+                    if(duty_cycle_m4 >1) then duty_cycle_m4 <= duty_cycle_m4 -2; else duty_cycle_m4 <="0000000"; end if;
                             cycle3 <= 0;
             else
                 cycle3 <= cycle3 +1;
-            end if;        
+            end if;       
         end if;
                
-    if (buton(4) = '1') then
-      if cycle4 = 300000000 then
-            if (counter = 0) then
-                duty_cycle_m1 <= "0001111";
-                duty_cycle_m2 <= "0001111";
-                duty_cycle_m3 <= "0001111";                     
-                duty_cycle_m4 <= "0001111";
-                cycle4 <=0;
-                counter <= counter +1;
-          elsif (counter = 1) then
-              duty_cycle_m1 <= "1111000";
-              duty_cycle_m2 <= "1111000";
-              duty_cycle_m3 <= "1111000";                     
-              duty_cycle_m4 <= "1111000";
-              cycle4 <=0;
-              counter <= counter +1;
-              
-          elsif (counter = 2) then
+  if (buton(4) = '1') then
+   if cycle4 = 25000000 then
+          duty_cycle_m1 <= "0011110";
+          duty_cycle_m2 <= "0011110";
+          duty_cycle_m3 <= "0011110";
+          duty_cycle_m4 <= "0011110";
+          cycle4 <= 0;
+     else
+         cycle4 <= cycle4 +1;     
+     end if;
+   end if;
+      
+       if (buton(5) = '1') then
+     if cycle5 = 25000000 then
               duty_cycle_m1 <= "0001111";
               duty_cycle_m2 <= "0001111";
-              duty_cycle_m3 <= "0001111";                     
+              duty_cycle_m3 <= "0001111";
               duty_cycle_m4 <= "0001111";
-              cycle4 <=0;
-              counter <= counter +1;
-          
-          elsif (counter = 3) then
-              duty_cycle_m1 <= "0000001";
-              duty_cycle_m2 <= "0000001";
-              duty_cycle_m3 <= "0000001";                     
-              duty_cycle_m4 <= "0000001";
-              cycle4 <=0;
-              counter <= 0;
-            end if;
        else
-            cycle4 <= cycle4 +1;                           
-      end if;      
-      
-  end if;
-           
+            cycle5 <= cycle5 +1;                           
+      end if;
+      end if;   
 end if;
 end process;
+
 
 P_REG_OUT : process (clk)
 begin
